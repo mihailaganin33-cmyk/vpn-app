@@ -17,10 +17,18 @@ jobs:
       
       - name: Patch Android Config
         run: |
+          # Настройки SDK
           sed -i 's/minSdkVersion flutter.minSdkVersion/minSdkVersion 21/' android/app/build.gradle
           sed -i 's/compileSdkVersion flutter.compileSdkVersion/compileSdkVersion 34/' android/app/build.gradle
           sed -i 's/targetSdkVersion flutter.targetSdkVersion/targetSdkVersion 34/' android/app/build.gradle
-          # Отключаем проверки lint, которые часто ломают сборку плагинов
+          
+          # Принудительно ставим стабильную версию NDK (частая причина падений v2ray)
+          sed -i 's/ndkVersion flutter.ndkVersion/ndkVersion "25.1.8937393"/' android/app/build.gradle
+          
+          # Принудительно ставим стабильную версию Kotlin
+          sed -i 's/ext.kotlin_version = .*/ext.kotlin_version = "1.8.22"/' android/build.gradle
+          
+          # Отключаем строгие проверки
           sed -i '/buildTypes {/i \    lintOptions { checkReleaseBuilds false }' android/app/build.gradle
           
       - run: flutter pub get

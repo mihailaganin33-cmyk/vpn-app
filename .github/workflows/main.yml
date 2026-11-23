@@ -11,10 +11,17 @@ jobs:
           java-version: '17'
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.19.0'
           channel: 'stable'
-      - run: flutter create --org com.tunned --project-name tunned_vpn .
-      - run: sed -i 's/android:label="tunned_vpn"/android:label="TunnedVPN"/g' android/app/src/main/AndroidManifest.xml
+      # Создаем проект
+      - run: flutter create --force --org com.tunned --project-name tunned_vpn .
+      
+      # ВОТ ТУТ МАГИЯ: робот сам впишет нужные версии Android SDK в сгенерированные файлы
+      - name: Patch Android Config
+        run: |
+          sed -i 's/minSdkVersion flutter.minSdkVersion/minSdkVersion 21/' android/app/build.gradle
+          sed -i 's/compileSdkVersion flutter.compileSdkVersion/compileSdkVersion 34/' android/app/build.gradle
+          sed -i 's/targetSdkVersion flutter.targetSdkVersion/targetSdkVersion 34/' android/app/build.gradle
+          
       - run: flutter pub get
       - run: flutter build apk --release
       - uses: actions/upload-artifact@v4
